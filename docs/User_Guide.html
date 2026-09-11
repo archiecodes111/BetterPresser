@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>BetterPresser - User Guide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+@page {
+    size: A4;
+    margin: 18mm 16mm 18mm 16mm;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #1e293b;
+    line-height: 1.55;
+    font-size: 10pt;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 0;
+}
+
+.doc-header {
+    border-bottom: 2px solid #0284c7;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 20pt;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.02em;
+}
+
+.meta-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 9pt;
+    margin-top: 10px;
+}
+
+.meta-item strong {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+h2 {
+    font-size: 13pt;
+    font-weight: 700;
+    color: #0f172a;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 4px;
+    margin-top: 22px;
+    margin-bottom: 10px;
+    page-break-after: avoid;
+}
+
+h3 {
+    font-size: 10.5pt;
+    font-weight: 600;
+    color: #334155;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    page-break-after: avoid;
+}
+
+p {
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+
+ul, ol {
+    margin-top: 4px;
+    margin-bottom: 10px;
+    padding-left: 20px;
+}
+
+li {
+    margin-bottom: 3px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    margin-bottom: 14px;
+    font-size: 9pt;
+    page-break-inside: avoid;
+}
+
+th {
+    background-color: #0f172a;
+    color: #ffffff;
+    font-weight: 600;
+    text-align: left;
+    padding: 6px 8px;
+    border: 1px solid #0f172a;
+}
+
+td {
+    padding: 5px 8px;
+    border: 1px solid #cbd5e1;
+}
+
+tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+pre, code {
+    font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+}
+
+code {
+    background-color: #f1f5f9;
+    color: #0284c7;
+    padding: 1.5px 4px;
+    border-radius: 3px;
+    font-size: 8.5pt;
+}
+
+pre {
+    background-color: #0f172a;
+    color: #f8fafc;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 8pt;
+    line-height: 1.4;
+    overflow-x: auto;
+    margin-top: 8px;
+    margin-bottom: 12px;
+    page-break-inside: avoid;
+}
+
+/* Mathematical Formula Cards */
+.math-card {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-left: 4px solid #0284c7;
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin: 10px 0 14px 0;
+    page-break-inside: avoid;
+}
+
+.math-title {
+    font-size: 9pt;
+    font-weight: 700;
+    color: #0369a1;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+}
+
+.math-formula {
+    font-family: 'Inter', serif;
+    font-size: 10.5pt;
+    color: #0f172a;
+    line-height: 1.8;
+}
+
+.math-sub {
+    font-size: 8.5pt;
+    color: #64748b;
+    margin-top: 6px;
+    border-top: 1px dashed #cbd5e1;
+    padding-top: 4px;
+}
+
+.fraction {
+    display: inline-flex;
+    flex-direction: column;
+    vertical-align: middle;
+    text-align: center;
+    padding: 0 3px;
+    font-size: 9pt;
+}
+
+.fraction .num {
+    border-bottom: 1.2px solid #0f172a;
+    padding-bottom: 1px;
+}
+
+.fraction .den {
+    padding-top: 1px;
+}
+
+.badge-pass {
+    background-color: #16a34a;
+    color: white;
+    font-weight: 700;
+    padding: 1.5px 5px;
+    border-radius: 3px;
+    font-size: 7.5pt;
+}
+
+/* Diagram */
+.diagram-container {
+    background: #0f172a;
+    border-radius: 6px;
+    padding: 14px;
+    margin: 12px 0;
+    text-align: center;
+    page-break-inside: avoid;
+}
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+    <h1>BetterPresser &mdash; User Guide & Operations Manual</h1>
+    <div class="meta-grid">
+        <div class="meta-item"><strong>Product:</strong> BetterPresser (VST3 & Standalone)</div>
+        <div class="meta-item"><strong>Developer:</strong> Archie DSP</div>
+        <div class="meta-item"><strong>Engine:</strong> 64-bit Floating-Point DSP</div>
+        <div class="meta-item"><strong>Assignment Deliverable:</strong> Operations Manual</div>
+    </div>
+</div>
+
+<h2>1. Overview & Introduction</h2>
+<p><strong>BetterPresser</strong> is a high-precision, 64-bit transparent digital audio compressor designed for mixing, mastering, and live sound production. Combining an intuitive vintage hardware console aesthetic inspired by classic analog processors with mathematical digital transparency, BetterPresser delivers clean dynamic control without unwanted harmonic distortion or coloration.</p>
+
+<h3>Key Features</h3>
+<ul>
+    <li><strong>Transparent Dynamic Control:</strong> Clean feed-forward gain computer with continuous second-order polynomial soft-knee.</li>
+    <li><strong>Dual Detection Engines:</strong> Instantaneous <strong>Peak</strong> detection for aggressive transient control vs. continuous <strong>RMS</strong> energy integration for smooth vocal and bus leveling.</li>
+    <li><strong>Dual-Mode Visualizer Display:</strong>
+        <ul>
+            <li><strong>Analog VU Meter:</strong> Illuminated vintage dial with physical 2nd-order mass-spring-damper needle ballistics.</li>
+            <li><strong>Live Scrolling Graph:</strong> Smooth, eye-comfortable waveform visualizer displaying Input, Output, and Gain Reduction curves over a ~3.3-second history window.</li>
+        </ul>
+    </li>
+    <li><strong>Precision Sidechain High-Pass Filter:</strong> 2nd-order SVF (20 Hz &ndash; 500 Hz) to eliminate sub-bass pumping, with a dedicated <strong>Sidechain Listen</strong> monitor mode.</li>
+    <li><strong>Parallel Compression:</strong> Sample-exact Dry/Wet crossfader for New York style parallel compression.</li>
+    <li><strong>Precision Level Metering:</strong> Vertical stereo Input and Output level meters with peak hold bars and clip warning indicators.</li>
+</ul>
+
+<h2>2. Installation & DAW Compatibility</h2>
+<p><strong>Windows VST3 Path:</strong> <code>C:\Program Files\Common Files\VST3\BetterPresser.vst3</code><br>
+<strong>Standalone Application:</strong> <code>build/BetterPresser_artefacts/Release/Standalone/BetterPresser.exe</code></p>
+<p>Compatible with all major 64-bit VST3 digital audio workstations including <strong>Ableton Live</strong>, <strong>Cockos Reaper</strong>, <strong>FL Studio</strong>, <strong>Logic Pro</strong>, <strong>Steinberg Cubase</strong>, <strong>Studio One</strong>, and <strong>Bitwig Studio</strong>.</p>
+
+<h2>3. Control Interface & Layout</h2>
+<pre><code>+-------------------------------------------------------------------------------+
+| BETTERPRESSER  &bull;  CLEAN DYNAMICS ENGINE          [PEAK] [RMS]   [SC LISTEN]   |
++-------------------------------------------------------------------------------+
+|        |                                                     |        |       |
+|  [IN]  |     +-----------------------------------------+     |  [OUT] |       |
+|  METER |     |        [ METER ]       [ GRAPH ]        |     |  METER |       |
+| -60dB  |     |                                         |     | -60dB  |       |
+|   to   |     |    ( ANALOG VU METER / LIVE GRAPH )     |     |   to   |       |
+|  +6dB  |     |                                         |     |  +6dB  |       |
+|        |     +-----------------------------------------+     |        |       |
+|        |                                                     |        |       |
+| [INPUT]|  [THRESHOLD]  [RATIO]   [MAKE UP]   [SC HPF]  [AUTO GAIN]   | [MIX]  |
+|  GAIN  |  [  KNEE   ]  [ATTACK]  [RELEASE]   [ MIX  ]  [AUTO REL ]   |[OUTPUT]|
++-------------------------------------------------------------------------------+</code></pre>
+
+<h2>4. Parameter Reference Guide</h2>
+<table>
+    <tr>
+        <th>Control</th>
+        <th>Parameter ID</th>
+        <th>Range</th>
+        <th>Default</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><strong>Detection Mode</strong></td>
+        <td><code>detectionMode</code></td>
+        <td>Peak / RMS</td>
+        <td>Peak</td>
+        <td>Selects instantaneous peak or energy-averaged RMS detection.</td>
+    </tr>
+    <tr>
+        <td><strong>Threshold</strong></td>
+        <td><code>threshold</code></td>
+        <td>&minus;60.0 dB to 0.0 dB</td>
+        <td>&minus;20.0 dB</td>
+        <td>Sets the decibel level at which gain reduction begins.</td>
+    </tr>
+    <tr>
+        <td><strong>Ratio</strong></td>
+        <td><code>ratio</code></td>
+        <td>1.0:1 to 30.0:1</td>
+        <td>4.0:1</td>
+        <td>Determines how much compression slope is applied above threshold.</td>
+    </tr>
+    <tr>
+        <td><strong>Attack</strong></td>
+        <td><code>attack</code></td>
+        <td>0.1 ms to 200.0 ms</td>
+        <td>15.0 ms</td>
+        <td>Controls how rapidly gain reduction engages when crossing threshold.</td>
+    </tr>
+    <tr>
+        <td><strong>Release</strong></td>
+        <td><code>release</code></td>
+        <td>5.0 ms to 2000.0 ms</td>
+        <td>100.0 ms</td>
+        <td>Controls recovery speed back to unity gain after signal drops below threshold.</td>
+    </tr>
+    <tr>
+        <td><strong>Auto Release</strong></td>
+        <td><code>autoRelease</code></td>
+        <td>Off / On</td>
+        <td>Off</td>
+        <td>Dynamically adapts release time (fast for transients, smooth for sustained tones).</td>
+    </tr>
+    <tr>
+        <td><strong>Knee</strong></td>
+        <td><code>knee</code></td>
+        <td>0.0 dB to 24.0 dB</td>
+        <td>6.0 dB</td>
+        <td>Width of the polynomial soft-knee transition zone for artifact-free compression.</td>
+    </tr>
+    <tr>
+        <td><strong>SC HPF</strong></td>
+        <td><code>sidechainHPF</code></td>
+        <td>20 Hz to 500 Hz</td>
+        <td>20 Hz (Off)</td>
+        <td>2nd-order high-pass filter on sidechain path to prevent bass pumping.</td>
+    </tr>
+    <tr>
+        <td><strong>SC Listen</strong></td>
+        <td><code>sidechainListen</code></td>
+        <td>Off / On</td>
+        <td>Off</td>
+        <td>Auditions the filtered sidechain detection signal through the outputs.</td>
+    </tr>
+    <tr>
+        <td><strong>Make Up</strong></td>
+        <td><code>makeUpGain</code></td>
+        <td>&minus;24.0 dB to +24.0 dB</td>
+        <td>0.0 dB</td>
+        <td>Manual output gain compensation applied to the wet signal.</td>
+    </tr>
+    <tr>
+        <td><strong>Auto Gain</strong></td>
+        <td><code>autoGain</code></td>
+        <td>Off / On</td>
+        <td>Off</td>
+        <td>Automatically calculates and applies mathematical makeup gain.</td>
+    </tr>
+    <tr>
+        <td><strong>Mix</strong></td>
+        <td><code>mix</code></td>
+        <td>0.0% to 100.0%</td>
+        <td>100.0%</td>
+        <td>Crossfades between dry input (0%) and compressed audio (100%).</td>
+    </tr>
+    <tr>
+        <td><strong>Input Gain</strong></td>
+        <td><code>inputGain</code></td>
+        <td>&minus;24.0 dB to +24.0 dB</td>
+        <td>0.0 dB</td>
+        <td>Pre-compression trim gain.</td>
+    </tr>
+    <tr>
+        <td><strong>Output Gain</strong></td>
+        <td><code>outputGain</code></td>
+        <td>&minus;24.0 dB to +24.0 dB</td>
+        <td>0.0 dB</td>
+        <td>Master output volume trim.</td>
+    </tr>
+</table>
+
+<h2>5. Practical Mixing Recipes & Presets</h2>
+<h3>1. Punchy Snare & Drum Bus</h3>
+<p><strong>Detection:</strong> Peak &bull; <strong>Threshold:</strong> &minus;18 dB &bull; <strong>Ratio:</strong> 4.0:1 &bull; <strong>Attack:</strong> 25 ms &bull; <strong>Release:</strong> 80 ms &bull; <strong>Knee:</strong> 3 dB &bull; <strong>SC HPF:</strong> 60 Hz &bull; <strong>Mix:</strong> 100%<br>
+<em>Result:</em> Lets the initial drum punch hit hard while clamping down on the ringing tail for punch and presence.</p>
+
+<h3>2. Transparent Lead Vocal Leveling</h3>
+<p><strong>Detection:</strong> RMS &bull; <strong>Threshold:</strong> &minus;24 dB &bull; <strong>Ratio:</strong> 2.5:1 &bull; <strong>Attack:</strong> 10 ms &bull; <strong>Release:</strong> 150 ms &bull; <strong>Auto Release:</strong> On &bull; <strong>Knee:</strong> 12 dB &bull; <strong>Auto Gain:</strong> On &bull; <strong>SC HPF:</strong> 100 Hz<br>
+<em>Result:</em> Smooth, invisible dynamic riding that glues the vocal at the front of the mix without audible pumping.</p>
+
+<h3>3. Master Bus Glue</h3>
+<p><strong>Detection:</strong> RMS &bull; <strong>Threshold:</strong> &minus;12 dB &bull; <strong>Ratio:</strong> 1.5:1 to 2.0:1 &bull; <strong>Attack:</strong> 30 ms &bull; <strong>Release:</strong> 100 ms &bull; <strong>Knee:</strong> 6 dB &bull; <strong>SC HPF:</strong> 85 Hz &bull; <strong>Mix:</strong> 100%<br>
+<em>Target:</em> Aim for 1.0 to 2.5 dB of Gain Reduction on the analog VU meter to knit the mix elements together.</p>
+
+<h3>4. Aggressive New York Parallel Compression</h3>
+<p><strong>Detection:</strong> Peak &bull; <strong>Threshold:</strong> &minus;32 dB &bull; <strong>Ratio:</strong> 12.0:1 &bull; <strong>Attack:</strong> 0.5 ms &bull; <strong>Release:</strong> 40 ms &bull; <strong>Knee:</strong> 0.0 dB &bull; <strong>Mix:</strong> 35%<br>
+<em>Result:</em> Heavily crushes drum transients in parallel, injecting massive room body underneath the dry punch.</p>
+
+<h2>6. Shortcuts & Interaction</h2>
+<ul>
+    <li><strong>Fine-Tune Parameter:</strong> Hold <code>Shift</code> while dragging any rotary knob for 10x high-precision adjustment.</li>
+    <li><strong>Reset to Default:</strong> <code>Double-Click</code> any knob to immediately return it to its default setting.</li>
+</ul>
+
+</body>
+</html>

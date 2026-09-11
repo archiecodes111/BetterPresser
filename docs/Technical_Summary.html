@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>BetterPresser - Technical Summary</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+@page {
+    size: A4;
+    margin: 18mm 16mm 18mm 16mm;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #1e293b;
+    line-height: 1.55;
+    font-size: 10pt;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 0;
+}
+
+.doc-header {
+    border-bottom: 2px solid #0284c7;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 20pt;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.02em;
+}
+
+.meta-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 9pt;
+    margin-top: 10px;
+}
+
+.meta-item strong {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+h2 {
+    font-size: 13pt;
+    font-weight: 700;
+    color: #0f172a;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 4px;
+    margin-top: 22px;
+    margin-bottom: 10px;
+    page-break-after: avoid;
+}
+
+h3 {
+    font-size: 10.5pt;
+    font-weight: 600;
+    color: #334155;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    page-break-after: avoid;
+}
+
+p {
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+
+ul, ol {
+    margin-top: 4px;
+    margin-bottom: 10px;
+    padding-left: 20px;
+}
+
+li {
+    margin-bottom: 3px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    margin-bottom: 14px;
+    font-size: 9pt;
+    page-break-inside: avoid;
+}
+
+th {
+    background-color: #0f172a;
+    color: #ffffff;
+    font-weight: 600;
+    text-align: left;
+    padding: 6px 8px;
+    border: 1px solid #0f172a;
+}
+
+td {
+    padding: 5px 8px;
+    border: 1px solid #cbd5e1;
+}
+
+tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+pre, code {
+    font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+}
+
+code {
+    background-color: #f1f5f9;
+    color: #0284c7;
+    padding: 1.5px 4px;
+    border-radius: 3px;
+    font-size: 8.5pt;
+}
+
+pre {
+    background-color: #0f172a;
+    color: #f8fafc;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 8pt;
+    line-height: 1.4;
+    overflow-x: auto;
+    margin-top: 8px;
+    margin-bottom: 12px;
+    page-break-inside: avoid;
+}
+
+/* Mathematical Formula Cards */
+.math-card {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-left: 4px solid #0284c7;
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin: 10px 0 14px 0;
+    page-break-inside: avoid;
+}
+
+.math-title {
+    font-size: 9pt;
+    font-weight: 700;
+    color: #0369a1;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+}
+
+.math-formula {
+    font-family: 'Inter', serif;
+    font-size: 10.5pt;
+    color: #0f172a;
+    line-height: 1.8;
+}
+
+.math-sub {
+    font-size: 8.5pt;
+    color: #64748b;
+    margin-top: 6px;
+    border-top: 1px dashed #cbd5e1;
+    padding-top: 4px;
+}
+
+.fraction {
+    display: inline-flex;
+    flex-direction: column;
+    vertical-align: middle;
+    text-align: center;
+    padding: 0 3px;
+    font-size: 9pt;
+}
+
+.fraction .num {
+    border-bottom: 1.2px solid #0f172a;
+    padding-bottom: 1px;
+}
+
+.fraction .den {
+    padding-top: 1px;
+}
+
+.badge-pass {
+    background-color: #16a34a;
+    color: white;
+    font-weight: 700;
+    padding: 1.5px 5px;
+    border-radius: 3px;
+    font-size: 7.5pt;
+}
+
+/* Diagram */
+.diagram-container {
+    background: #0f172a;
+    border-radius: 6px;
+    padding: 14px;
+    margin: 12px 0;
+    text-align: center;
+    page-break-inside: avoid;
+}
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+    <h1>BetterPresser &mdash; Technical Summary & DSP Specification</h1>
+    <div class="meta-grid">
+        <div class="meta-item"><strong>Plugin:</strong> BetterPresser (VST3 & Standalone)</div>
+        <div class="meta-item"><strong>Developer:</strong> Archie DSP</div>
+        <div class="meta-item"><strong>Framework:</strong> JUCE 8 (C++17)</div>
+        <div class="meta-item"><strong>Validation Standard:</strong> Tracktion PluginVal (Strictness Level 10)</div>
+    </div>
+</div>
+
+<h2>1. Executive Summary</h2>
+<p><strong>BetterPresser</strong> is a high-performance digital dynamic range compressor developed in C++ using the JUCE framework. The system is engineered to provide transparent, low-distortion feed-forward compression with continuous second-order polynomial soft-knee transitions, switchable Peak/RMS sidechain detection, dynamic auto-makeup compensation, and zero-allocation real-time audio thread execution. The plugin includes a resolution-independent procedural vector user interface featuring an illuminated analog VU meter with second-order physics-based needle ballistics and a live scrolling compression graph.</p>
+
+<h2>2. DSP Mathematics & Signal Processing Architecture</h2>
+
+<div class="diagram-container">
+    <svg width="640" height="110" viewBox="0 0 640 110" xmlns="http://www.w3.org/2000/svg">
+        <style>
+            .box { fill: #1e293b; stroke: #38bdf8; stroke-width: 1.5; rx: 4; }
+            .box-det { fill: #0369a1; stroke: #38bdf8; stroke-width: 1.5; rx: 4; }
+            .txt { fill: #f8fafc; font-family: Inter, sans-serif; font-size: 9px; font-weight: 600; text-anchor: middle; }
+            .txt-dim { fill: #94a3b8; font-family: Inter, sans-serif; font-size: 7.5px; text-anchor: middle; }
+            .arrow { stroke: #38bdf8; stroke-width: 1.5; marker-end: url(#arrow); }
+        </style>
+        <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#38bdf8"/>
+            </marker>
+        </defs>
+        
+        <!-- Nodes -->
+        <rect x="10" y="38" width="60" height="34" class="box"/>
+        <text x="40" y="55" class="txt">Stereo In</text>
+        <text x="40" y="65" class="txt-dim">Input Gain</text>
+        
+        <line x1="70" y1="55" x2="95" y2="55" class="arrow"/>
+        
+        <rect x="95" y="38" width="75" height="34" class="box"/>
+        <text x="132" y="55" class="txt">SC 2nd HPF</text>
+        <text x="132" y="65" class="txt-dim">20Hz - 500Hz</text>
+        
+        <line x1="170" y1="55" x2="195" y2="55" class="arrow"/>
+        
+        <rect x="195" y="38" width="85" height="34" class="box-det"/>
+        <text x="237" y="55" class="txt">Detector</text>
+        <text x="237" y="65" class="txt-dim">Peak / RMS</text>
+        
+        <line x1="280" y1="55" x2="305" y2="55" class="arrow"/>
+        
+        <rect x="305" y="38" width="95" height="34" class="box"/>
+        <text x="352" y="55" class="txt">Gain Computer</text>
+        <text x="352" y="65" class="txt-dim">Polynomial Knee</text>
+        
+        <line x1="400" y1="55" x2="425" y2="55" class="arrow"/>
+        
+        <rect x="425" y="38" width="85" height="34" class="box"/>
+        <text x="467" y="55" class="txt">Ballistics</text>
+        <text x="467" y="65" class="txt-dim">Att / Rel in dB</text>
+        
+        <line x1="510" y1="55" x2="535" y2="55" class="arrow"/>
+        
+        <rect x="535" y="38" width="95" height="34" class="box"/>
+        <text x="582" y="55" class="txt">Crossfade / Out</text>
+        <text x="582" y="65" class="txt-dim">Dry/Wet + Gain</text>
+    </svg>
+</div>
+
+<h3>2.1. Continuous Polynomial Soft-Knee Gain Computer</h3>
+<p>To eliminate discontinuous first derivatives in the static compression curve (which creates audible harmonic distortion and clicks), BetterPresser implements a quadratic polynomial transition across knee width <i>W</i>:</p>
+
+<div class="math-card">
+    <div class="math-title">Static Transfer Characteristic y<sub>G</sub>(x<sub>G</sub>) [in dB]</div>
+    <div class="math-formula">
+        &bull; For &nbsp; <i>x</i><sub>G</sub> &le; <i>T</i> &minus; <sup><i>W</i></sup>&frasl;<sub>2</sub> &nbsp; (Linear uncompressed region):<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<b><i>y</i><sub>G</sub>(<i>x</i><sub>G</sub>) = <i>x</i><sub>G</sub></b><br><br>
+        &bull; For &nbsp; <i>T</i> &minus; <sup><i>W</i></sup>&frasl;<sub>2</sub> &lt; <i>x</i><sub>G</sub> &le; <i>T</i> + <sup><i>W</i></sup>&frasl;<sub>2</sub> &nbsp; (Polynomial transition region):<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<b><i>y</i><sub>G</sub>(<i>x</i><sub>G</sub>) = <i>x</i><sub>G</sub> + <div class="fraction"><span class="num">(<sup>1</sup>&frasl;<sub><i>R</i></sub> &minus; 1) &middot; (<i>x</i><sub>G</sub> &minus; <i>T</i> + <sup><i>W</i></sup>&frasl;<sub>2</sub>)<sup>2</sup></span><span class="den">2<i>W</i></span></div></b><br><br>
+        &bull; For &nbsp; <i>x</i><sub>G</sub> &gt; <i>T</i> + <sup><i>W</i></sup>&frasl;<sub>2</sub> &nbsp; (Linear compressed region):<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<b><i>y</i><sub>G</sub>(<i>x</i><sub>G</sub>) = <i>T</i> + <div class="fraction"><span class="num"><i>x</i><sub>G</sub> &minus; <i>T</i></span><span class="den"><i>R</i></span></div></b>
+    </div>
+    <div class="math-sub">
+        Target Gain Reduction: &nbsp; <b>GR<sub>target</sub>(<i>x</i><sub>G</sub>) = <i>y</i><sub>G</sub>(<i>x</i><sub>G</sub>) &minus; <i>x</i><sub>G</sub> &le; 0 dB</b>
+    </div>
+</div>
+
+<h3>2.2. Dual Detection Path (Peak &amp; RMS)</h3>
+<div class="math-card">
+    <div class="math-title">Sidechain Envelope Detectors</div>
+    <div class="math-formula">
+        <b>1. Peak Mode:</b> &nbsp; <i>x</i><sub>lin</sub>[<i>n</i>] = max(|<i>s</i><sub>L</sub>[<i>n</i>]|, |<i>s</i><sub>R</sub>[<i>n</i>]|)<br><br>
+        <b>2. True RMS Mode:</b> Running leaky integrator with &tau;<sub>rms</sub> = 30 ms (&alpha;<sub>rms</sub> = exp(&minus;1 / (&tau;<sub>rms</sub> &middot; <i>f</i><sub>s</sub>))):<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;MS[<i>n</i>] = &alpha;<sub>rms</sub> &middot; MS[<i>n</i>&minus;1] + (1 &minus; &alpha;<sub>rms</sub>) &middot; &frac12; (<i>s</i><sub>L</sub><sup>2</sup>[<i>n</i>] + <i>s</i><sub>R</sub><sup>2</sup>[<i>n</i>])<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<i>x</i><sub>lin</sub>[<i>n</i>] = &radic;<span style="border-top:1px solid #0f172a;">max(10<sup>&minus;10</sup>, MS[<i>n</i>])</span>
+    </div>
+</div>
+
+<h3>2.3. Decibel-Domain Envelope Ballistics</h3>
+<div class="math-card">
+    <div class="math-title">Attack &amp; Release Discrete Difference Equations</div>
+    <div class="math-formula">
+        <b>&bull; Attack Phase (when GR<sub>target</sub>[<i>n</i>] &lt; Env<sub>dB</sub>[<i>n</i>&minus;1]):</b><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;Env<sub>dB</sub>[<i>n</i>] = &alpha;<sub>att</sub> &middot; Env<sub>dB</sub>[<i>n</i>&minus;1] + (1 &minus; &alpha;<sub>att</sub>) &middot; GR<sub>target</sub>[<i>n</i>]<br><br>
+        <b>&bull; Release Phase (when GR<sub>target</sub>[<i>n</i>] &ge; Env<sub>dB</sub>[<i>n</i>&minus;1]):</b><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;Env<sub>dB</sub>[<i>n</i>] = &alpha;<sub>rel</sub> &middot; Env<sub>dB</sub>[<i>n</i>&minus;1] + (1 &minus; &alpha;<sub>rel</sub>) &middot; GR<sub>target</sub>[<i>n</i>]
+    </div>
+    <div class="math-sub">
+        Time constants: &nbsp; &alpha;<sub>att</sub> = exp(&minus;1 / (&tau;<sub>att</sub> &middot; <i>f</i><sub>s</sub>)), &nbsp; &alpha;<sub>rel</sub> = exp(&minus;1 / (&tau;<sub>rel</sub> &middot; <i>f</i><sub>s</sub>))
+    </div>
+</div>
+
+<h3>2.4. Automatic Makeup Gain Formula</h3>
+<div class="math-card">
+    <div class="math-title">Dynamic Mathematical Compensation</div>
+    <div class="math-formula">
+        <b><i>G</i><sub>auto</sub>(dB) = &minus;0.55 &middot; <i>T</i> &middot; (1 &minus; <sup>1</sup>&frasl;<sub><i>R</i></sub>) &nbsp;&nbsp; (for <i>T</i> &le; 0 dB)</b>
+    </div>
+</div>
+
+<h2>3. Real-Time Thread Safety &amp; Memory Architecture</h2>
+<ul>
+    <li><strong>Zero Heap Allocation on Audio Thread:</strong> All audio buffers, filters, and ring buffers are statically allocated in <code>prepareToPlay()</code>. <code>processBlock()</code> performs zero <code>new</code>/<code>delete</code> operations.</li>
+    <li><strong>Lock-Free Atomic Metering:</strong> Gain reduction, input peak, and output peak meters communicate with the 60 Hz GUI thread via relaxed memory order atomics (<code>std::atomic&lt;float&gt;</code>).</li>
+    <li><strong>APVTS State Serialization:</strong> Full parameter layout managed through <code>AudioProcessorValueTreeState</code> with XML binary stream persistence in <code>getStateInformation()</code> / <code>setStateInformation()</code>.</li>
+</ul>
+
+<h2>4. Physics-Based VU Meter &amp; Visualizer Engine</h2>
+<div class="math-card">
+    <div class="math-title">2nd-Order Mass-Spring-Damper Needle Model</div>
+    <div class="math-formula">
+        <b>d<sup>2</sup>&theta;/dt<sup>2</sup> + 2&zeta;&omega;<sub>n</sub> d&theta;/dt + &omega;<sub>n</sub><sup>2</sup> (&theta; &minus; &theta;<sub>target</sub>) = 0</b>
+    </div>
+    <div class="math-sub">
+        ANSI C16.5 VU parameters: Damping ratio &zeta; = 0.68, Natural frequency &omega;<sub>n</sub> = 22.0 rad/s (300 ms rise time, 1.2% overshoot).
+    </div>
+</div>
+
+<div class="math-card">
+    <div class="math-title">Gaussian-Smoothed Waveform Visualizer</div>
+    <div class="math-formula">
+        <b><i>y</i><sub>smooth</sub>[<i>p</i>] = 0.25 &middot; <i>y</i><sub>raw</sub>[<i>p</i>&minus;1] + 0.50 &middot; <i>y</i><sub>raw</sub>[<i>p</i>] + 0.25 &middot; <i>y</i><sub>raw</sub>[<i>p</i>+1]</b>
+    </div>
+    <div class="math-sub">
+        Subsampled at ~6.0 ms intervals (264 samples/point @ 44.1 kHz) providing a smooth, fatigue-free ~3.3s display window.
+    </div>
+</div>
+
+<h2>5. Verification &amp; Testing Conformance</h2>
+<table>
+    <tr>
+        <th>#</th>
+        <th>Test Description</th>
+        <th>Input Condition</th>
+        <th>Measured Output</th>
+        <th>Status</th>
+    </tr>
+    <tr>
+        <td><strong>01</strong></td>
+        <td>Unity Ratio (1:1)</td>
+        <td>&minus;60 dB to +12 dB range</td>
+        <td>0.000000 dB</td>
+        <td><span class="badge-pass">PASS</span></td>
+    </tr>
+    <tr>
+        <td><strong>02</strong></td>
+        <td>Hard-Knee Mathematical Precision</td>
+        <td>Thresh &minus;20 dB, Ratio 4:1, In &minus;8 dB</td>
+        <td>&minus;9.000000 dB (Exact target)</td>
+        <td><span class="badge-pass">PASS</span></td>
+    </tr>
+    <tr>
+        <td><strong>03</strong></td>
+        <td>Soft-Knee Polynomial Continuity</td>
+        <td>Knee 10 dB, 100 sub-dB points</td>
+        <td>Continuous C<sup>1</sup> transition</td>
+        <td><span class="badge-pass">PASS</span></td>
+    </tr>
+    <tr>
+        <td><strong>04</strong></td>
+        <td>Peak vs. RMS Impulse Differentiation</td>
+        <td>1-sample 0 dBFS spike</td>
+        <td>Peak: &minus;3.0 dB / RMS: 0.0 dB</td>
+        <td><span class="badge-pass">PASS</span></td>
+    </tr>
+    <tr>
+        <td><strong>05</strong></td>
+        <td>Attack &amp; Release Ballistics</td>
+        <td>Burst tone + 1s silence</td>
+        <td>Att: &minus;14.7 dB, Rel: &minus;0.0006 dB</td>
+        <td><span class="badge-pass">PASS</span></td>
+    </tr>
+    <tr>
+        <td><strong>06</strong></td>
+        <td>Auto-Makeup Gain Formula</td>
+        <td>Thresh &minus;20 dB, Ratio 4:1</td>
+        <td>+8.250000 dB</td>
+        <td><span class="badge-pass">PASS</span></td>
+    </tr>
+    <tr>
+        <td><strong>07</strong></td>
+        <td>Dry/Wet Bit Transparency</td>
+        <td>Mix = 0% on heavy compression</td>
+        <td>Max diff = 0.000000 (Bit-exact)</td>
+        <td><span class="badge-pass">PASS</span></td>
+    </tr>
+    <tr>
+        <td><strong>08</strong></td>
+        <td>Sidechain HPF Rejection</td>
+        <td>40 Hz sine tone, HPF @ 300 Hz</td>
+        <td>Attenuated by &gt;16.8 dB</td>
+        <td><span class="badge-pass">PASS</span></td>
+    </tr>
+    <tr>
+        <td><strong>09</strong></td>
+        <td>APVTS State XML Serialization</td>
+        <td>15 mutated parameters</td>
+        <td>100% restored (&Delta; &lt; 10<sup>&minus;5</sup>)</td>
+        <td><span class="badge-pass">PASS</span></td>
+    </tr>
+    <tr>
+        <td><strong>10</strong></td>
+        <td>Real-Time NaN/Overload Safety</td>
+        <td>&plusmn;100.0f (+40 dBFS) @ 96 kHz</td>
+        <td>Zero NaNs / zero infinities</td>
+        <td><span class="badge-pass">PASS</span></td>
+    </tr>
+    <tr>
+        <td><strong>11</strong></td>
+        <td><strong>Tracktion PluginVal</strong></td>
+        <td><strong>Strictness Level 10 (Max)</strong></td>
+        <td><strong>0 Errors / 0 Crashes</strong></td>
+        <td><span class="badge-pass">PASS</span></td>
+    </tr>
+</table>
+
+<h2>6. Project Deliverables &amp; Output Paths</h2>
+<ul>
+    <li><strong>VST3 Plugin:</strong> <code>build/BetterPresser_artefacts/Release/VST3/BetterPresser.vst3</code></li>
+    <li><strong>Standalone Application:</strong> <code>build/BetterPresser_artefacts/Release/Standalone/BetterPresser.exe</code></li>
+    <li><strong>Unit Test Runner:</strong> <code>build/Release/BetterPresserTests.exe</code></li>
+    <li><strong>Automated Test Script:</strong> <code>scripts/run_tests.ps1</code></li>
+    <li><strong>User Guide PDF:</strong> <code>docs/User_Guide.pdf</code></li>
+    <li><strong>Technical Summary PDF:</strong> <code>docs/Technical_Summary.pdf</code></li>
+    <li><strong>Conformance Test Report:</strong> <code>TEST_REPORT.txt</code> &bull; <code>TEST_REPORT.md</code></li>
+</ul>
+
+</body>
+</html>

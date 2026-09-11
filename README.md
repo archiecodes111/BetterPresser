@@ -1,293 +1,76 @@
-# JUCE Plugin Boilerplate by Archie
+# BetterPresser 🎛️
 
-A ready-to-use JUCE audio plugin development boilerplate for Visual Studio Code using CMake.
+A transparent, high-precision 64-bit digital audio compressor plugin built with **JUCE (C++17)** and **CMake**, featuring an analog-style UI inspired by classic hardware dynamics processors.
 
-Built to simplify the setup process and eliminate the configuration headaches that usually come with setting up JUCE plugin development for the first time.
-
-This boilerplate is designed as a reusable foundation for building audio plugins faster.
-
-## Features
-
-* Pre-configured JUCE integration
-* CMake build system ready
-* Visual Studio Code workflow ready
-* Supports:
-
-  * VST3
-  * Standalone Application
-* Optional assets pipeline (auto-detects assets when added)
-* Clean project structure
-* Ready for DSP implementation
-* Beginner-friendly starter template
+![BetterPresser Interface Preview](docs/assets/preview.png)
 
 ---
 
-## Requirements
+## ✨ Features
 
-Before building the project, install:
-
-### Required Software
-
-* Visual Studio Code
-* CMake
-* Visual Studio Build Tools (Desktop Development with C++)
-* Git
-
-### Recommended VS Code Extensions
-
-* C/C++
-* CMake Tools
-* CMake
+- **Transparent DSP Dynamics Engine**: Clean feed-forward gain computer with continuous second-order polynomial soft-knee transitions.
+- **Dual Detection Modes**:
+  - **Peak Mode**: Instantaneous peak tracking for aggressive transient control.
+  - **RMS Mode**: Continuous root-mean-square energy integration ($\tau = 30\text{ ms}$) for smooth, transparent vocal and master bus leveling.
+- **Dual-Mode Visualizer Display**:
+  - **Analog VU Meter**: Illuminated vintage dial with authentic 2nd-order mass-spring-damper physics needle simulation (ANSI C16.5 standard).
+  - **Live Scrolling Waveform Graph**: Gaussian-smoothed oscilloscope view showing real-time Input, Output, and Gain Reduction curves (~3.3s history window).
+- **Sidechain High-Pass Filter**: 2nd-order State-Variable HPF ($20\text{ Hz} - 500\text{ Hz}$) with dedicated **Sidechain Listen** audition mode.
+- **Parallel Compression**: Sample-exact Dry/Wet crossfade for instant parallel processing.
+- **Real-Time Thread Safety**: Zero heap allocations on the audio rendering thread; lock-free atomic metering pipeline.
+- **Quality Certified**: 10/10 automated DSP unit test suite and **Tracktion PluginVal** validated at Strictness Level 10 (0 errors).
 
 ---
 
-## Project Structure
+## 🎛️ Parameters
 
-```text
-JUCE-Plugin-Boilerplate/
-│
-├── Source/                  # Plugin source files
-│   ├── PluginProcessor.cpp
-│   ├── PluginProcessor.h
-│   ├── PluginEditor.cpp
-│   └── PluginEditor.h
-│
-├── assets/                  # Optional assets folder
-│
-├── modules/
-│   └── JUCE/                # JUCE framework
-│
-├── CMakeLists.txt           # Build configuration
-├── .gitignore               # Git ignore rules
-└── README.md                # Documentation
-```
+| Parameter | Range | Default | Description |
+| :--- | :--- | :--- | :--- |
+| **Detection Mode** | Peak / RMS | `Peak` | Instantaneous peak vs. energy-averaged RMS detection |
+| **Threshold** | $-60.0\text{ dB}$ to $0.0\text{ dB}$ | `-20.0 dB` | Compression onset level |
+| **Ratio** | $1.0:1$ to $30.0:1$ | `4.0:1` | Compression slope |
+| **Attack** | $0.1\text{ ms}$ to $200.0\text{ ms}$ | `15.0 ms` | Onset response time |
+| **Release** | $5.0\text{ ms}$ to $2000.0\text{ ms}$ | `100.0 ms` | Recovery time |
+| **Auto Release** | Off / On | `Off` | Program-dependent adaptive release timing |
+| **Knee** | $0.0\text{ dB}$ to $24.0\text{ dB}$ | `6.0 dB` | Polynomial soft-knee transition width |
+| **SC HPF** | $20\text{ Hz}$ to $500\text{ Hz}$ | `20 Hz (Off)` | Sidechain detection high-pass filter |
+| **SC Listen** | Off / On | `Off` | Sidechain monitor mode |
+| **Make Up** | $-24.0\text{ dB}$ to $+24.0\text{ dB}$ | `0.0 dB` | Manual makeup gain compensation |
+| **Auto Gain** | Off / On | `Off` | Dynamic mathematical makeup gain compensation |
+| **Mix** | $0.0\%$ to $100.0\%$ | `100.0%` | Dry/Wet parallel crossfade |
+| **Input / Output** | $-24.0\text{ dB}$ to $+24.0\text{ dB}$ | `0.0 dB` | Input and Output trim levels |
 
 ---
 
-## Getting Started
+## 🚀 Building & Testing
 
-Clone the repository:
+### Prerequisites
+- Visual Studio Build Tools (C++17) / Clang / GCC
+- CMake 3.23+
+- Git
 
+### Build Commands
 ```bash
-git clone <repository-url>
-```
+# 1. Configure CMake
+cmake -B build
 
-Go into the project folder:
+# 2. Build Release targets (VST3, Standalone & Unit Tests)
+cmake --build build --config Release
 
-```bash
-cd JUCE-Plugin-Boilerplate
-```
-
-Open the folder in Visual Studio Code.
-
----
-
-## Building the Project
-
-### Step 1 — Configure CMake
-
-Open the Command Palette:
-
-```text
-Ctrl + Shift + P
-```
-
-Run:
-
-```text
-CMake: Configure
+# 3. Run Automated Tests & PluginVal
+powershell -ExecutionPolicy Bypass -File ./scripts/run_tests.ps1
 ```
 
 ---
 
-### Step 2 — Build
+## 📁 Deliverables & Documentation
 
-Open the Command Palette:
-
-```text
-Ctrl + Shift + P
-```
-
-Run:
-
-```text
-CMake: Build
-```
+- 📄 **User Guide (PDF)**: [`docs/User_Guide.pdf`](docs/User_Guide.pdf)
+- 📄 **Technical Summary & DSP Spec (PDF)**: [`docs/Technical_Summary.pdf`](docs/Technical_Summary.pdf)
+- 📄 **Conformance Test Report**: [`TEST_REPORT.txt`](TEST_REPORT.txt) / [`TEST_REPORT.md`](TEST_REPORT.md)
 
 ---
 
-### Step 3 — Run Standalone Application
+## 📜 License & Credits
 
-Open the Command Palette:
-
-```text
-Ctrl + Shift + P
-```
-
-Run:
-
-```text
-CMake: Run Without Debugging
-```
-
-If everything is configured correctly, the standalone app should launch successfully.
-
----
-
-## Plugin Output Paths
-
-After building:
-
-### VST3 Plugin
-
-```text
-build/<ProjectName>_artefacts/Debug/VST3/
-```
-
-### Standalone Application
-
-```text
-build/<ProjectName>_artefacts/Debug/Standalone/
-```
-
----
-
-## Adding Assets (Optional)
-
-This boilerplate supports optional asset embedding.
-
-Place assets inside:
-
-```text
-assets/
-```
-
-Example:
-
-```text
-assets/logo.png
-assets/background.png
-assets/impulse.wav
-```
-
-After adding assets:
-
-Reconfigure CMake:
-
-```text
-CMake: Configure
-```
-
-Then rebuild.
-
-Assets will automatically be compiled into the plugin binary.
-
----
-
-## Creating a New Plugin from this Boilerplate
-
-Open `CMakeLists.txt` and update:
-
-```cmake
-set(PROJECT_NAME "YourPluginName")
-set(PRODUCT_NAME "YourPluginName")
-set(COMPANY_NAME "YourCompany")
-set(BUNDLE_ID "com.yourcompany.yourplugin")
-```
-
-Then rename:
-
-* PluginProcessor files
-* PluginEditor files
-* Processor class names
-* Editor class names
-
----
-
-## Recommended Development Workflow
-
-1. Build Standalone first
-2. Test DSP logic
-3. Build VST3 version
-4. Test inside your DAW
-5. Add parameters
-6. Build UI
-7. Add assets if needed
-8. Final testing
-
----
-
-## Common Issues
-
-### JUCE folder not found
-
-Make sure the JUCE folder exists here:
-
-```text
-modules/JUCE
-```
-
----
-
-### CMake configuration issues
-
-Delete the build folder:
-
-```text
-build/
-```
-
-Then run:
-
-```text
-CMake: Configure
-```
-
-again.
-
----
-
-### Plugin not showing in DAW
-
-* Rescan plugins
-* Verify VST3 output path
-* Check your DAW plugin folder settings
-
----
-
-## Built For
-
-This boilerplate can be used as a foundation for:
-
-* Gain Plugins
-* EQ Plugins
-* Compressors
-* Distortion Plugins
-* Delay Plugins
-* Reverb Plugins
-* Utility Plugins
-* Synth Plugins
-
----
-
-## Why This Exists
-
-This boilerplate was created after spending multiple classes debugging setup issues during JUCE plugin development.
-
-The goal is simple:
-
-Set up once. Build faster. Focus on creating.
-
----
-
-## Credits
-
-Created by Archie.
-
-Built for learning, building, and shipping audio plugins.
-
----
-
-## License
-
-Free to use, modify, and build upon.
+Developed by **Archie DSP** for Audio Software Development. Built with [JUCE](https://juce.com/).

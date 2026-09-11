@@ -22,5 +22,7 @@ compile_commands.json
 # Plugin binaries
 *.vst3
 
-# Logs
+# Logs & Tools
 *.log
+/tools/
+*.zip

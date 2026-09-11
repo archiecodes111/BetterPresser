@@ -26,7 +26,7 @@ endif()
 juce_add_plugin(${PROJECT_NAME}
     COMPANY_NAME "${COMPANY_NAME}"
     BUNDLE_ID "${BUNDLE_ID}"
-    COPY_PLUGIN_AFTER_BUILD TRUE
+    COPY_PLUGIN_AFTER_BUILD FALSE
     PLUGIN_MANUFACTURER_CODE ADSP
     PLUGIN_CODE SmGP
     FORMATS ${FORMATS}
@@ -71,7 +71,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 # Compile definitions
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-    JUCE_WEB_BROWSER=1
+    JUCE_WEB_BROWSER=0
     JUCE_USE_CURL=0
     JUCE_VST3_CAN_REPLACE_VST2=0
     JUCE_DISPLAY_SPLASH_SCREEN=0
@@ -96,5 +96,44 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     juce::juce_product_unlocking
     juce::juce_recommended_config_flags
     juce::juce_recommended_lto_flags
+    juce::juce_recommended_warning_flags
+)
+
+# ==============================================================================
+# Unit Test Suite Target
+# ==============================================================================
+add_executable(BetterPresserTests
+    "${CMAKE_CURRENT_SOURCE_DIR}/Tests/TestMain.cpp"
+    ${SourceFiles}
+)
+
+target_include_directories(BetterPresserTests PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source"
+)
+
+target_compile_definitions(BetterPresserTests PRIVATE
+    JUCE_STANDALONE_APPLICATION=1
+    JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1
+    JucePlugin_Name="BetterPresser"
+    JucePlugin_IsMidiEffect=0
+    JucePlugin_IsSynth=0
+    JucePlugin_WantsMidiInput=0
+    JucePlugin_ProducesMidiOutput=0
+)
+
+target_link_libraries(BetterPresserTests PRIVATE
+    juce::juce_audio_basics
+    juce::juce_audio_devices
+    juce::juce_audio_formats
+    juce::juce_audio_processors
+    juce::juce_audio_utils
+    juce::juce_core
+    juce::juce_data_structures
+    juce::juce_dsp
+    juce::juce_events
+    juce::juce_graphics
+    juce::juce_gui_basics
+    juce::juce_gui_extra
+    juce::juce_recommended_config_flags
     juce::juce_recommended_warning_flags
 )

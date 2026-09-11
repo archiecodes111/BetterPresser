@@ -10,12 +10,185 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 #endif
                          .withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
-      )
+                         ),
+      apvts(*this, nullptr, "Parameters", createParameters())
 {
+    thresholdParam = apvts.getRawParameterValue("threshold");
+    ratioParam = apvts.getRawParameterValue("ratio");
+    attackParam = apvts.getRawParameterValue("attack");
+    releaseParam = apvts.getRawParameterValue("release");
+    autoReleaseParam = apvts.getRawParameterValue("autoRelease");
+    kneeParam = apvts.getRawParameterValue("knee");
+    detectionModeParam = apvts.getRawParameterValue("detectionMode");
+    sidechainHpfParam = apvts.getRawParameterValue("sidechainHPF");
+    sidechainListenParam = apvts.getRawParameterValue("sidechainListen");
+    makeUpGainParam = apvts.getRawParameterValue("makeUpGain");
+    autoGainParam = apvts.getRawParameterValue("autoGain");
+    mixParam = apvts.getRawParameterValue("mix");
+    inputGainParam = apvts.getRawParameterValue("inputGain");
+    outputGainParam = apvts.getRawParameterValue("outputGain");
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor()
 {
+}
+
+//==============================================================================
+juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::createParameters()
+{
+    std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
+
+    // Threshold: -60 dB to 0 dB
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID { "threshold", 1 },
+        "Threshold",
+        juce::NormalisableRange<float>(-60.0f, 0.0f, 0.1f),
+        -20.0f,
+        juce::String(),
+        juce::AudioProcessorParameter::genericParameter,
+        [](float val, int) { return juce::String(val, 1) + " dB"; },
+        [](const juce::String& text) { return text.getFloatValue(); }));
+
+    // Ratio: 1.0 to 30.0 (skewed to give more precision at lower ratios)
+    auto ratioRange = juce::NormalisableRange<float>(1.0f, 30.0f, 0.1f);
+    ratioRange.setSkewForCentre(4.0f);
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID { "ratio", 1 },
+        "Ratio",
+        ratioRange,
+        4.0f,
+        juce::String(),
+        juce::AudioProcessorParameter::genericParameter,
+        [](float val, int) { return juce::String(val, 1) + ":1"; },
+        [](const juce::String& text) { return text.getFloatValue(); }));
+
+    // Attack: 0.1 ms to 200 ms (log skewed)
+    auto attackRange = juce::NormalisableRange<float>(0.1f, 200.0f, 0.1f);
+    attackRange.setSkewForCentre(15.0f);
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID { "attack", 1 },
+        "Attack",
+        attackRange,
+        15.0f,
+        juce::String(),
+        juce::AudioProcessorParameter::genericParameter,
+        [](float val, int) { return (val < 1.0f) ? (juce::String(val, 2) + " ms") : (juce::String(val, 1) + " ms"); },
+        [](const juce::String& text) { return text.getFloatValue(); }));
+
+    // Release: 5 ms to 2000 ms (log skewed)
+    auto releaseRange = juce::NormalisableRange<float>(5.0f, 2000.0f, 1.0f);
+    releaseRange.setSkewForCentre(100.0f);
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID { "release", 1 },
+        "Release",
+        releaseRange,
+        100.0f,
+        juce::String(),
+        juce::AudioProcessorParameter::genericParameter,
+        [](float val, int) { return (val >= 1000.0f) ? (juce::String(val * 0.001f, 2) + " s") : (juce::String(static_cast<int>(val)) + " ms"); },
+        [](const juce::String& text) { return text.getFloatValue(); }));
+
+    // Auto-Release Toggle
+    params.push_back(std::make_unique<juce::AudioParameterBool>(
+        juce::ParameterID { "autoRelease", 1 },
+        "Auto Release",
+        false));
+
+    // Knee: 0 dB to 24 dB
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID { "knee", 1 },
+        "Knee",
+        juce::NormalisableRange<float>(0.0f, 24.0f, 0.1f),
+        6.0f,
+        juce::String(),
+        juce::AudioProcessorParameter::genericParameter,
+        [](float val, int) { return juce::String(val, 1) + " dB"; },
+        [](const juce::String& text) { return text.getFloatValue(); }));
+
+    // Detection Mode: 0 = Peak, 1 = RMS
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(
+        juce::ParameterID { "detectionMode", 1 },
+        "Detection Mode",
+        juce::StringArray { "Peak", "RMS" },
+        0));
+
+    // Sidechain HPF: 20 Hz to 500 Hz
+    auto hpfRange = juce::NormalisableRange<float>(20.0f, 500.0f, 1.0f);
+    hpfRange.setSkewForCentre(80.0f);
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID { "sidechainHPF", 1 },
+        "SC HPF",
+        hpfRange,
+        20.0f,
+        juce::String(),
+        juce::AudioProcessorParameter::genericParameter,
+        [](float val, int) { return (val <= 20.0f) ? "Off" : (juce::String(static_cast<int>(val)) + " Hz"); },
+        [](const juce::String& text) { return text.getFloatValue(); }));
+
+    // Sidechain Listen Toggle
+    params.push_back(std::make_unique<juce::AudioParameterBool>(
+        juce::ParameterID { "sidechainListen", 1 },
+        "SC Listen",
+        false));
+
+    // Make Up Gain: -24 dB to +24 dB
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID { "makeUpGain", 1 },
+        "Make Up",
+        juce::NormalisableRange<float>(-24.0f, 24.0f, 0.1f),
+        0.0f,
+        juce::String(),
+        juce::AudioProcessorParameter::genericParameter,
+        [](float val, int) { return (val > 0.0f ? "+" : "") + juce::String(val, 1) + " dB"; },
+        [](const juce::String& text) { return text.getFloatValue(); }));
+
+    // Auto Gain Toggle
+    params.push_back(std::make_unique<juce::AudioParameterBool>(
+        juce::ParameterID { "autoGain", 1 },
+        "Auto Gain",
+        false));
+
+    // Mix (Dry / Wet): 0% to 100%
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID { "mix", 1 },
+        "Mix",
+        juce::NormalisableRange<float>(0.0f, 100.0f, 1.0f),
+        100.0f,
+        juce::String(),
+        juce::AudioProcessorParameter::genericParameter,
+        [](float val, int) { return juce::String(static_cast<int>(val)) + "%"; },
+        [](const juce::String& text) { return text.getFloatValue(); }));
+
+    // Input Gain: -24 dB to +24 dB
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID { "inputGain", 1 },
+        "Input Gain",
+        juce::NormalisableRange<float>(-24.0f, 24.0f, 0.1f),
+        0.0f,
+        juce::String(),
+        juce::AudioProcessorParameter::genericParameter,
+        [](float val, int) { return (val > 0.0f ? "+" : "") + juce::String(val, 1) + " dB"; },
+        [](const juce::String& text) { return text.getFloatValue(); }));
+
+    // Output Gain: -24 dB to +24 dB
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID { "outputGain", 1 },
+        "Output Gain",
+        juce::NormalisableRange<float>(-24.0f, 24.0f, 0.1f),
+        0.0f,
+        juce::String(),
+        juce::AudioProcessorParameter::genericParameter,
+        [](float val, int) { return (val > 0.0f ? "+" : "") + juce::String(val, 1) + " dB"; },
+        [](const juce::String& text) { return text.getFloatValue(); }));
+
+    // Display Mode: 0 = Meter, 1 = Graph
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(
+        juce::ParameterID { "displayMode", 1 },
+        "Display Mode",
+        juce::StringArray { "Meter", "Graph" },
+        0));
+
+    return { params.begin(), params.end() };
 }
 
 //==============================================================================
@@ -58,8 +231,7 @@ double AudioPluginAudioProcessor::getTailLengthSeconds() const
 
 int AudioPluginAudioProcessor::getNumPrograms()
 {
-    return 1; // NB: some hosts don't cope very well if you tell them there are 0 programs,
-              // so this should be at least 1, even if you're not really implementing programs.
+    return 1;
 }
 
 int AudioPluginAudioProcessor::getCurrentProgram()
@@ -86,15 +258,12 @@ void AudioPluginAudioProcessor::changeProgramName(int index, const juce::String 
 //==============================================================================
 void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
-    juce::ignoreUnused(sampleRate, samplesPerBlock);
+    compressor.prepare(sampleRate, samplesPerBlock, getTotalNumInputChannels());
 }
 
 void AudioPluginAudioProcessor::releaseResources()
 {
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
+    compressor.reset();
 }
 
 bool AudioPluginAudioProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const
@@ -103,14 +272,10 @@ bool AudioPluginAudioProcessor::isBusesLayoutSupported(const BusesLayout &layout
     juce::ignoreUnused(layouts);
     return true;
 #else
-    // This is the place where you check if the layout is supported.
-    // In this template code we only support mono or stereo.
-    // Some plugin hosts, such as certain GarageBand versions, will only
-    // load plugins that support stereo bus layouts.
-    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono() && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono() &&
+        layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
 
-    // This checks if the input layout matches the output layout
 #if !JucePlugin_IsSynth
     if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
         return false;
@@ -124,41 +289,42 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
                                              juce::MidiBuffer &midiMessages)
 {
     juce::ignoreUnused(midiMessages);
-
     juce::ScopedNoDenormals noDenormals;
+
     auto totalNumInputChannels = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear(i, 0, buffer.getNumSamples());
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    // Update DSP parameters lock-free
+    if (thresholdParam != nullptr)
     {
-        auto *channelData = buffer.getWritePointer(channel);
-        juce::ignoreUnused(channelData);
-        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
-        {
-            channelData[sample] = 0.5f * channelData[sample];
-        }
+        compressor.setParameters(
+            thresholdParam->load(std::memory_order_relaxed),
+            ratioParam->load(std::memory_order_relaxed),
+            attackParam->load(std::memory_order_relaxed),
+            releaseParam->load(std::memory_order_relaxed),
+            autoReleaseParam->load(std::memory_order_relaxed) > 0.5f,
+            kneeParam->load(std::memory_order_relaxed),
+            static_cast<betterpresser::DetectionMode>(static_cast<int>(detectionModeParam->load(std::memory_order_relaxed))),
+            sidechainHpfParam->load(std::memory_order_relaxed),
+            sidechainListenParam->load(std::memory_order_relaxed) > 0.5f,
+            makeUpGainParam->load(std::memory_order_relaxed),
+            autoGainParam->load(std::memory_order_relaxed) > 0.5f,
+            mixParam->load(std::memory_order_relaxed),
+            inputGainParam->load(std::memory_order_relaxed),
+            outputGainParam->load(std::memory_order_relaxed)
+        );
     }
+
+    compressor.process(buffer);
 }
 
 //==============================================================================
 bool AudioPluginAudioProcessor::hasEditor() const
 {
-    return true; // (change this to false if you choose to not supply an editor)
+    return true;
 }
 
 juce::AudioProcessorEditor *AudioPluginAudioProcessor::createEditor()
@@ -169,21 +335,21 @@ juce::AudioProcessorEditor *AudioPluginAudioProcessor::createEditor()
 //==============================================================================
 void AudioPluginAudioProcessor::getStateInformation(juce::MemoryBlock &destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
-    juce::ignoreUnused(destData);
+    auto state = apvts.copyState();
+    std::unique_ptr<juce::XmlElement> xml(state.createXml());
+    copyXmlToBinary(*xml, destData);
 }
 
 void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
-    juce::ignoreUnused(data, sizeInBytes);
+    std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+    if (xmlState != nullptr && xmlState->hasTagName(apvts.state.getType()))
+    {
+        apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
+    }
 }
 
 //==============================================================================
-// This creates new instances of the plugin..
 juce::AudioProcessor *JUCE_CALLTYPE createPluginFilter()
 {
     return new AudioPluginAudioProcessor();

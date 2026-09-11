@@ -1,6 +1,7 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
+#include "DSP/CleanCompressor.h"
 
 //==============================================================================
 class AudioPluginAudioProcessor final : public juce::AudioProcessor
@@ -42,7 +43,32 @@ public:
     void getStateInformation(juce::MemoryBlock &destData) override;
     void setStateInformation(const void *data, int sizeInBytes) override;
 
+    //==============================================================================
+    juce::AudioProcessorValueTreeState& getAPVTS() noexcept { return apvts; }
+    betterpresser::CleanCompressor& getCompressor() noexcept { return compressor; }
+
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPluginAudioProcessor)
+
+    juce::AudioProcessorValueTreeState apvts;
+    juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
+
+    betterpresser::CleanCompressor compressor;
+
+    // Cached parameter pointers for lock-free audio thread reads
+    std::atomic<float>* thresholdParam = nullptr;
+    std::atomic<float>* ratioParam = nullptr;
+    std::atomic<float>* attackParam = nullptr;
+    std::atomic<float>* releaseParam = nullptr;
+    std::atomic<float>* autoReleaseParam = nullptr;
+    std::atomic<float>* kneeParam = nullptr;
+    std::atomic<float>* detectionModeParam = nullptr;
+    std::atomic<float>* sidechainHpfParam = nullptr;
+    std::atomic<float>* sidechainListenParam = nullptr;
+    std::atomic<float>* makeUpGainParam = nullptr;
+    std::atomic<float>* autoGainParam = nullptr;
+    std::atomic<float>* mixParam = nullptr;
+    std::atomic<float>* inputGainParam = nullptr;
+    std::atomic<float>* outputGainParam = nullptr;
 };
