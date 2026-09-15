@@ -19,6 +19,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
       mixKnob(p.getAPVTS(), "mix", "MIX", "%"),
       outputGainKnob(p.getAPVTS(), "outputGain", "OUTPUT", " dB")
 {
+    juce::LookAndFeel::getDefaultLookAndFeel().setDefaultSansSerifTypefaceName("Segoe UI");
     setLookAndFeel(&customLookAndFeel);
 
     // Display Area

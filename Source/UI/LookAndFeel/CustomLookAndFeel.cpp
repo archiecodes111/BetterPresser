@@ -6,6 +6,8 @@ namespace betterpresser
 
 CustomLookAndFeel::CustomLookAndFeel()
 {
+    setDefaultSansSerifTypefaceName("Segoe UI");
+    
     setColour(juce::Slider::rotarySliderFillColourId, getAccentCyan());
     setColour(juce::Slider::rotarySliderOutlineColourId, juce::Colour(0xff2a3c4d));
     setColour(juce::Label::textColourId, getTextPrimary());
