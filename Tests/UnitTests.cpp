@@ -119,12 +119,12 @@ private:
         CleanCompressor peakComp;
         peakComp.prepare(44100.0, 512, 2);
         peakComp.setParameters(-20.0f, 4.0f, 0.1f, 100.0f, false, 0.0f,
-                               DetectionMode::Peak, 20.0f, false, 0.0f, false, 100.0f, 0.0f, 0.0f);
+                               DetectionMode::Peak, 30.0f, 20.0f, false, 0.0f, false, 100.0f, 0.0f, 0.0f);
 
         CleanCompressor rmsComp;
         rmsComp.prepare(44100.0, 512, 2);
         rmsComp.setParameters(-20.0f, 4.0f, 0.1f, 100.0f, false, 0.0f,
-                              DetectionMode::RMS, 20.0f, false, 0.0f, false, 100.0f, 0.0f, 0.0f);
+                              DetectionMode::RMS, 30.0f, 20.0f, false, 0.0f, false, 100.0f, 0.0f, 0.0f);
 
         // Create a 1-sample spike buffer
         juce::AudioBuffer<float> spikeBufPeak(2, 64);
@@ -154,7 +154,7 @@ private:
         comp.prepare(44100.0, 512, 2);
         // Fast attack 1ms, long release 100ms
         comp.setParameters(-20.0f, 4.0f, 1.0f, 100.0f, false, 0.0f,
-                           DetectionMode::Peak, 20.0f, false, 0.0f, false, 100.0f, 0.0f, 0.0f);
+                           DetectionMode::Peak, 30.0f, 20.0f, false, 0.0f, false, 100.0f, 0.0f, 0.0f);
         comp.reset();
 
         // Step 1: Step input of 0 dB sine wave
@@ -197,7 +197,7 @@ private:
         dryComp.prepare(44100.0, 256, 2);
         // Mix = 0% (100% Dry)
         dryComp.setParameters(-30.0f, 10.0f, 0.1f, 10.0f, false, 0.0f,
-                              DetectionMode::Peak, 20.0f, false, 0.0f, false, 0.0f, 0.0f, 0.0f);
+                              DetectionMode::Peak, 30.0f, 20.0f, false, 0.0f, false, 0.0f, 0.0f, 0.0f);
         dryComp.reset();
 
         juce::AudioBuffer<float> testBuf(2, 256);
@@ -229,12 +229,12 @@ private:
         CleanCompressor compOff;
         compOff.prepare(44100.0, 2048, 2);
         compOff.setParameters(-20.0f, 8.0f, 1.0f, 100.0f, false, 0.0f,
-                              DetectionMode::Peak, 20.0f, false, 0.0f, false, 100.0f, 0.0f, 0.0f);
+                              DetectionMode::Peak, 30.0f, 20.0f, false, 0.0f, false, 100.0f, 0.0f, 0.0f);
 
         CleanCompressor compHpf;
         compHpf.prepare(44100.0, 2048, 2);
         compHpf.setParameters(-20.0f, 8.0f, 1.0f, 100.0f, false, 0.0f,
-                              DetectionMode::Peak, 300.0f, false, 0.0f, false, 100.0f, 0.0f, 0.0f);
+                              DetectionMode::Peak, 30.0f, 300.0f, false, 0.0f, false, 100.0f, 0.0f, 0.0f);
 
         // 40 Hz low-bass sine wave at 0 dB
         juce::AudioBuffer<float> bassBufOff(2, 2048);

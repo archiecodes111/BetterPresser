@@ -14,6 +14,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
       attackKnob(p.getAPVTS(), "attack", "ATTACK", " ms"),
       releaseKnob(p.getAPVTS(), "release", "RELEASE", " ms"),
       kneeKnob(p.getAPVTS(), "knee", "KNEE", " dB"),
+      rmsWindowKnob(p.getAPVTS(), "rmsWindow", "RMS TIME", " ms"),
       makeUpGainKnob(p.getAPVTS(), "makeUpGain", "MAKE UP", " dB"),
       sidechainHpfKnob(p.getAPVTS(), "sidechainHPF", "SC HPF", " Hz"),
       mixKnob(p.getAPVTS(), "mix", "MIX", "%"),
@@ -37,6 +38,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     addAndMakeVisible(attackKnob);
     addAndMakeVisible(releaseKnob);
     addAndMakeVisible(kneeKnob);
+    addAndMakeVisible(rmsWindowKnob);
     addAndMakeVisible(makeUpGainKnob);
     addAndMakeVisible(sidechainHpfKnob);
     addAndMakeVisible(mixKnob);
@@ -67,6 +69,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     peakModeButton.setClickingTogglesState(true);
     peakModeButton.setToggleState(true, juce::dontSendNotification);
     peakModeButton.onClick = [this]() {
+        DBG("PEAK MODE CLICKED");
         if (auto* param = processorRef.getAPVTS().getParameter("detectionMode"))
             param->setValueNotifyingHost(0.0f);
     };
@@ -75,6 +78,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     rmsModeButton.setRadioGroupId(102);
     rmsModeButton.setClickingTogglesState(true);
     rmsModeButton.onClick = [this]() {
+        DBG("RMS MODE CLICKED");
         if (auto* param = processorRef.getAPVTS().getParameter("detectionMode"))
             param->setValueNotifyingHost(1.0f);
     };
@@ -225,13 +229,13 @@ void AudioPluginAudioProcessorEditor::resized()
     rmsModeButton.setBounds(totalWidth - 178, 10, 48, 24);
     scListenButton.setBounds(totalWidth - 115, 10, 95, 24);
 
-    // Left Column: Input Meter & Input Gain
-    inputLevelMeter.setBounds(16, 56, 32, 290);
-    inputGainKnob.setBounds(10, 360, 78, 88);
+    // Left Column: Input Meter & Input Gain (Center X = 50)
+    inputLevelMeter.setBounds(42, 56, 40, 290);
+    inputGainKnob.setBounds(10, 360, 80, 88);
 
-    // Right Column: Output Meter & Output Gain
-    outputLevelMeter.setBounds(totalWidth - 48, 56, 32, 290);
-    outputGainKnob.setBounds(totalWidth - 88, 360, 78, 88);
+    // Right Column: Output Meter & Output Gain (Center X = totalWidth - 50)
+    outputLevelMeter.setBounds(totalWidth - 58, 56, 40, 290);
+    outputGainKnob.setBounds(totalWidth - 90, 360, 80, 88);
 
     // Center Display Area (VU Meter / Compression Graph)
     const int centerDisplayX = 116;
@@ -247,24 +251,32 @@ void AudioPluginAudioProcessorEditor::resized()
     graphTabButton.setBounds(centerDisplayX + centerDisplayW / 2 + 2, centerDisplayY + 6, 56, 20);
 
     // Main Knob Grid (Center Lower Area)
-    const int gridStartX = 116;
-    const int knobSpacingX = 88;
+    const int knobSpacingX = 76;
     const int knobWidth = 80;
     const int knobHeight = 88;
 
-    // Row 1 (Y = 246)
-    const int row1Y = 246;
-    thresholdKnob.setBounds(gridStartX, row1Y, knobWidth, knobHeight);
-    ratioKnob.setBounds(gridStartX + knobSpacingX, row1Y, knobWidth, knobHeight);
-    makeUpGainKnob.setBounds(gridStartX + knobSpacingX * 2, row1Y, knobWidth, knobHeight);
-    sidechainHpfKnob.setBounds(gridStartX + knobSpacingX * 3, row1Y, knobWidth, knobHeight);
-    autoGainButton.setBounds(gridStartX + knobSpacingX * 4 + 10, row1Y + 28, 84, 28);
+    // Center display spans X: 116 to 664 (width 548). 
+    // Total width of Row 1 (5 knobs + 1 button) = (4 * 76) + 80 + 76 + 84 = 464.
+    // Offset to center = (548 - 464) / 2 = 42.
+    // Base X = 116 + 42 = 158.
+    const int row1StartX = 158;
+    const int row2StartX = row1StartX + (knobSpacingX / 2); // 196 (staggers the 4 knobs perfectly under the 5 knobs)
+    const int buttonX = row1StartX + (knobSpacingX * 5); // 538
 
-    // Row 2 (Y = 348)
+    // Row 1 (Y = 246): Threshold | Ratio | Knee | MakeUp | SC HPF | AutoGain Btn
+    const int row1Y = 246;
+    thresholdKnob.setBounds(row1StartX, row1Y, knobWidth, knobHeight);
+    ratioKnob.setBounds(row1StartX + knobSpacingX, row1Y, knobWidth, knobHeight);
+    kneeKnob.setBounds(row1StartX + knobSpacingX * 2, row1Y, knobWidth, knobHeight);
+    makeUpGainKnob.setBounds(row1StartX + knobSpacingX * 3, row1Y, knobWidth, knobHeight);
+    sidechainHpfKnob.setBounds(row1StartX + knobSpacingX * 4, row1Y, knobWidth, knobHeight);
+    autoGainButton.setBounds(buttonX, row1Y + 28, 84, 28);
+
+    // Row 2 (Y = 348): Attack | Release | RMS Time | Mix | AutoRelease Btn
     const int row2Y = 348;
-    kneeKnob.setBounds(gridStartX, row2Y, knobWidth, knobHeight);
-    attackKnob.setBounds(gridStartX + knobSpacingX, row2Y, knobWidth, knobHeight);
-    releaseKnob.setBounds(gridStartX + knobSpacingX * 2, row2Y, knobWidth, knobHeight);
-    mixKnob.setBounds(gridStartX + knobSpacingX * 3, row2Y, knobWidth, knobHeight);
-    autoReleaseButton.setBounds(gridStartX + knobSpacingX * 4 + 10, row2Y + 28, 84, 28);
+    attackKnob.setBounds(row2StartX, row2Y, knobWidth, knobHeight);
+    releaseKnob.setBounds(row2StartX + knobSpacingX, row2Y, knobWidth, knobHeight);
+    rmsWindowKnob.setBounds(row2StartX + knobSpacingX * 2, row2Y, knobWidth, knobHeight);
+    mixKnob.setBounds(row2StartX + knobSpacingX * 3, row2Y, knobWidth, knobHeight);
+    autoReleaseButton.setBounds(buttonX, row2Y + 28, 84, 28);
 }

@@ -64,6 +64,7 @@ private:
     std::atomic<float>* autoReleaseParam = nullptr;
     std::atomic<float>* kneeParam = nullptr;
     std::atomic<float>* detectionModeParam = nullptr;
+    std::atomic<float>* rmsWindowParam = nullptr;
     std::atomic<float>* sidechainHpfParam = nullptr;
     std::atomic<float>* sidechainListenParam = nullptr;
     std::atomic<float>* makeUpGainParam = nullptr;

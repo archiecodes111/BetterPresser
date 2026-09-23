@@ -41,6 +41,7 @@ private:
     betterpresser::RotaryKnobWithLabel attackKnob;
     betterpresser::RotaryKnobWithLabel releaseKnob;
     betterpresser::RotaryKnobWithLabel kneeKnob;
+    betterpresser::RotaryKnobWithLabel rmsWindowKnob;
     betterpresser::RotaryKnobWithLabel makeUpGainKnob;
     betterpresser::RotaryKnobWithLabel sidechainHpfKnob;
     betterpresser::RotaryKnobWithLabel mixKnob;

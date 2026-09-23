@@ -85,7 +85,7 @@ void VerticalLevelMeter::paint(juce::Graphics& g)
     // Top Title
     g.setFont(juce::Font(9.0f, juce::Font::bold));
     g.setColour(juce::Colour(0xff8b9ba8));
-    g.drawText(title, juce::Rectangle<float>(0.0f, 0.0f, bounds.getWidth(), 12.0f),
+    g.drawText(title, juce::Rectangle<float>(0.0f, 0.0f, 16.0f, 12.0f),
                juce::Justification::centred, false);
 
     // Meter slot geometry

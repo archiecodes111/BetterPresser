@@ -87,6 +87,7 @@ void CleanCompressor::setParameters(float thresholdDb,
                                      bool autoRelease,
                                      float kneeDb,
                                      DetectionMode detectionMode,
+                                     float rmsWindowMs,
                                      float sidechainHpfHz,
                                      bool sidechainListen,
                                      float makeUpGainDb,
@@ -109,6 +110,10 @@ void CleanCompressor::setParameters(float thresholdDb,
     paramMix = std::clamp(mixPercent * 0.01f, 0.0f, 1.0f);
     paramInputGainDb = inputGainDb;
     paramOutputGainDb = outputGainDb;
+
+    // Update RMS Alpha dynamically based on user parameter
+    float windowSec = std::max(0.001f, rmsWindowMs * 0.001f);
+    rmsAlpha = std::exp(-1.0f / (windowSec * static_cast<float>(currentSampleRate)));
 
     updateFilter();
     updateBallistics();

@@ -37,6 +37,7 @@ public:
                        bool autoRelease,
                        float kneeDb,
                        DetectionMode detectionMode,
+                       float rmsWindowMs,
                        float sidechainHpfHz,
                        bool sidechainListen,
                        float makeUpGainDb,

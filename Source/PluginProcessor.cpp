@@ -20,6 +20,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     autoReleaseParam = apvts.getRawParameterValue("autoRelease");
     kneeParam = apvts.getRawParameterValue("knee");
     detectionModeParam = apvts.getRawParameterValue("detectionMode");
+    rmsWindowParam = apvts.getRawParameterValue("rmsWindow");
     sidechainHpfParam = apvts.getRawParameterValue("sidechainHPF");
     sidechainListenParam = apvts.getRawParameterValue("sidechainListen");
     makeUpGainParam = apvts.getRawParameterValue("makeUpGain");
@@ -111,6 +112,19 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
         "Detection Mode",
         juce::StringArray { "Peak", "RMS" },
         0));
+
+    // RMS Window: 1 ms to 500 ms (log skewed)
+    auto rmsRange = juce::NormalisableRange<float>(1.0f, 500.0f, 1.0f);
+    rmsRange.setSkewForCentre(30.0f);
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID { "rmsWindow", 1 },
+        "RMS Window",
+        rmsRange,
+        30.0f,
+        juce::String(),
+        juce::AudioProcessorParameter::genericParameter,
+        [](float val, int) { return juce::String(static_cast<int>(val)) + " ms"; },
+        [](const juce::String& text) { return text.getFloatValue(); }));
 
     // Sidechain HPF: 20 Hz to 500 Hz
     auto hpfRange = juce::NormalisableRange<float>(20.0f, 500.0f, 1.0f);
@@ -308,6 +322,7 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
             autoReleaseParam->load(std::memory_order_relaxed) > 0.5f,
             kneeParam->load(std::memory_order_relaxed),
             static_cast<betterpresser::DetectionMode>(static_cast<int>(detectionModeParam->load(std::memory_order_relaxed))),
+            rmsWindowParam->load(std::memory_order_relaxed),
             sidechainHpfParam->load(std::memory_order_relaxed),
             sidechainListenParam->load(std::memory_order_relaxed) > 0.5f,
             makeUpGainParam->load(std::memory_order_relaxed),
